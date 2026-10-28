@@ -3,64 +3,889 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student Performance Predictor</title>
+
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .result { margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; }
+        :root {
+            --bg: #080d19;
+            --panel: #111a2c;
+            --panel-light: #172238;
+            --border: #26344d;
+            --text: #edf2ff;
+            --muted: #94a3b8;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --success: #34d399;
+            --danger: #fb7185;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 36px 18px;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(
+                    circle at 15% 0%,
+                    rgba(99, 102, 241, 0.13),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(56, 189, 248, 0.08),
+                    transparent 30%
+                ),
+                var(--bg);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            margin-bottom: 28px;
+            padding: 28px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: linear-gradient(
+                135deg,
+                rgba(129, 140, 248, 0.12),
+                rgba(17, 26, 44, 0.96) 65%
+            );
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: #a5b4fc;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.45);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(28px, 5vw, 38px);
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            max-width: 660px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .form-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: rgba(17, 26, 44, 0.96);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-header h2 {
+            margin: 0 0 7px;
+            font-size: 19px;
+        }
+
+        .form-header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        form {
+            padding: 10px 28px 28px;
+        }
+
+        .section {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .section-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(129, 140, 248, 0.25);
+            border-radius: 10px;
+            color: #c7d2fe;
+            background: rgba(99, 102, 241, 0.13);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .section-heading h3 {
+            margin: 1px 0 5px;
+            font-size: 16px;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            color: #dce5f5;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        input,
+        select {
+            display: block;
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            color: var(--text);
+            background: #0b1323;
+            font-family: inherit;
+            font-size: 13px;
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s,
+                background 0.2s;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            color: var(--text);
+            background: #0b1323;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:hover,
+        select:hover {
+            border-color: #475779;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: #0e172a;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.13);
+        }
+
+        .actions {
+            padding-top: 26px;
+        }
+
+        .submit-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 52px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 11px;
+            color: white;
+            background: linear-gradient(
+                100deg,
+                #6366f1,
+                #818cf8
+            );
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s,
+                filter 0.2s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.24);
+            filter: brightness(1.08);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:focus-visible {
+            outline: 3px solid #c7d2fe;
+            outline-offset: 3px;
+        }
+
+        .disclaimer {
+            margin: 15px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .result {
+            margin: 0 28px 28px;
+            padding: 20px;
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            border-radius: 13px;
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .result.error {
+            border-color: rgba(251, 113, 133, 0.3);
+            background: rgba(244, 63, 94, 0.08);
+        }
+
+        .result h3 {
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .result p {
+            margin: 0;
+            color: #d1fae5;
+            font-size: 14px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .result.error p {
+            color: #fecdd3;
+        }
+
+        footer {
+            padding: 23px 0 5px;
+            color: #64748b;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 18px 12px;
+            }
+
+            .hero {
+                padding: 23px 20px;
+                border-radius: 17px;
+            }
+
+            .form-card {
+                border-radius: 17px;
+            }
+
+            .form-header {
+                padding: 22px 20px;
+            }
+
+            form {
+                padding: 6px 20px 22px;
+            }
+
+            .fields {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .result {
+                margin: 0 20px 22px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <h1>Student Performance Predictor</h1>
-    
-    <form action="/predict" method="post">
-        <!-- Demographic Information -->
-        <h2>Demographic Information</h2>
-        <div class="form-group">
-            <label for="school">School:</label>
-            <select id="school" name="school" required>
-                <option value="0">GP - Gabriel Pereira</option>
-                <option value="1">MS - Mousinho da Silveira</option>
-            </select>
+    <main class="container">
+
+        <header class="hero">
+            <div class="eyebrow">
+                <span class="status-dot"></span>
+                Machine Learning Project
+            </div>
+
+            <h1>Student Performance Predictor</h1>
+
+            <p>
+                Explore how academic history, study habits, and student
+                background relate to predicted performance categories.
+                Enter the available information below to generate a model
+                prediction.
+            </p>
+        </header>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Student Information</h2>
+                <p>
+                    Complete each section using the information available.
+                    All fields are required by this form.
+                </p>
+            </div>
+
+            <form action="/predict" method="post">
+
+                <!-- SECTION 1: BASIC INFORMATION -->
+                <section class="section">
+                    <div class="section-heading">
+                        <div class="section-number">01</div>
+                        <div>
+                            <h3>Basic Information</h3>
+                            <p>School, subject, and academic grades.</p>
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="field">
+                            <label for="school">School</label>
+                            <select id="school" name="school" required>
+                                <option value="" disabled selected>
+                                    Select school
+                                </option>
+                                <option value="GP">
+                                    GP — Gabriel Pereira
+                                </option>
+                                <option value="MS">
+                                    MS — Mousinho da Silveira
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="subject">Subject</label>
+                            <select id="subject" name="subject" required>
+                                <option value="" disabled selected>
+                                    Select subject
+                                </option>
+                                <option value="math">Mathematics</option>
+                                <option value="portuguese">Portuguese</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="sex">Sex</label>
+                            <select id="sex" name="sex" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="F">Female (F)</option>
+                                <option value="M">Male (M)</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="age">Age</label>
+                            <input
+                                type="number"
+                                id="age"
+                                name="age"
+                                min="15"
+                                max="22"
+                                step="1"
+                                placeholder="e.g. 18"
+                                required
+                            >
+                        </div>
+
+                        <div class="field">
+                            <label for="G1">First Period Grade (G1)</label>
+                            <input
+                                type="number"
+                                id="G1"
+                                name="G1"
+                                min="0"
+                                max="20"
+                                step="1"
+                                placeholder="0–20"
+                                required
+                            >
+                        </div>
+
+                        <div class="field">
+                            <label for="G2">Second Period Grade (G2)</label>
+                            <input
+                                type="number"
+                                id="G2"
+                                name="G2"
+                                min="0"
+                                max="20"
+                                step="1"
+                                placeholder="0–20"
+                                required
+                            >
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: FAMILY AND BACKGROUND -->
+                <section class="section">
+                    <div class="section-heading">
+                        <div class="section-number">02</div>
+                        <div>
+                            <h3>Family & Background</h3>
+                            <p>Living environment and parental information.</p>
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="field">
+                            <label for="address">Home Address Type</label>
+                            <select id="address" name="address" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="U">Urban</option>
+                                <option value="R">Rural</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="famsize">Family Size</label>
+                            <select id="famsize" name="famsize" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="LE3">3 or fewer members</option>
+                                <option value="GT3">More than 3 members</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Medu">Mother's Education</label>
+                            <select id="Medu" name="Medu" required>
+                                <option value="" disabled selected>
+                                    Select education level
+                                </option>
+                                <option value="0">0 — None</option>
+                                <option value="1">1 — Primary education</option>
+                                <option value="2">2 — 5th–9th grade</option>
+                                <option value="3">3 — Secondary education</option>
+                                <option value="4">4 — Higher education</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Fedu">Father's Education</label>
+                            <select id="Fedu" name="Fedu" required>
+                                <option value="" disabled selected>
+                                    Select education level
+                                </option>
+                                <option value="0">0 — None</option>
+                                <option value="1">1 — Primary education</option>
+                                <option value="2">2 — 5th–9th grade</option>
+                                <option value="3">3 — Secondary education</option>
+                                <option value="4">4 — Higher education</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Mjob">Mother's Occupation</label>
+                            <select id="Mjob" name="Mjob" required>
+                                <option value="" disabled selected>
+                                    Select occupation
+                                </option>
+                                <option value="teacher">Teacher</option>
+                                <option value="health">Healthcare</option>
+                                <option value="services">Services</option>
+                                <option value="at_home">At home</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Fjob">Father's Occupation</label>
+                            <select id="Fjob" name="Fjob" required>
+                                <option value="" disabled selected>
+                                    Select occupation
+                                </option>
+                                <option value="teacher">Teacher</option>
+                                <option value="health">Healthcare</option>
+                                <option value="services">Services</option>
+                                <option value="at_home">At home</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="guardian">Primary Guardian</label>
+                            <select id="guardian" name="guardian" required>
+                                <option value="" disabled selected>
+                                    Select guardian
+                                </option>
+                                <option value="mother">Mother</option>
+                                <option value="father">Father</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: STUDY HABITS -->
+                <section class="section">
+                    <div class="section-heading">
+                        <div class="section-number">03</div>
+                        <div>
+                            <h3>Study Habits & Support</h3>
+                            <p>Study time, school support, and activities.</p>
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="field">
+                            <label for="traveltime">Travel Time to School</label>
+                            <select id="traveltime" name="traveltime" required>
+                                <option value="" disabled selected>
+                                    Select travel time
+                                </option>
+                                <option value="1">Under 15 minutes</option>
+                                <option value="2">15–30 minutes</option>
+                                <option value="3">30–60 minutes</option>
+                                <option value="4">Over 60 minutes</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="studytime">Weekly Study Time</label>
+                            <select id="studytime" name="studytime" required>
+                                <option value="" disabled selected>
+                                    Select study time
+                                </option>
+                                <option value="1">Under 2 hours</option>
+                                <option value="2">2–5 hours</option>
+                                <option value="3">5–10 hours</option>
+                                <option value="4">Over 10 hours</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="failures">Past Class Failures</label>
+                            <select id="failures" name="failures" required>
+                                <option value="" disabled selected>
+                                    Select number
+                                </option>
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3 or more</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="schoolsup">Extra Educational Support</label>
+                            <select id="schoolsup" name="schoolsup" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="famsup">Family Educational Support</label>
+                            <select id="famsup" name="famsup" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="paid">Extra Paid Classes</label>
+                            <select id="paid" name="paid" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="activities">Extracurricular Activities</label>
+                            <select id="activities" name="activities" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="higher">Plans for Higher Education</label>
+                            <select id="higher" name="higher" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="internet">Internet Access at Home</label>
+                            <select id="internet" name="internet" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="romantic">In a Romantic Relationship</label>
+                            <select id="romantic" name="romantic" required>
+                                <option value="" disabled selected>
+                                    Select value
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: LIFESTYLE -->
+                <section class="section">
+                    <div class="section-heading">
+                        <div class="section-number">04</div>
+                        <div>
+                            <h3>Lifestyle & Wellbeing</h3>
+                            <p>Self-reported habits and health indicators.</p>
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="field">
+                            <label for="famrel">Family Relationship Quality</label>
+                            <select id="famrel" name="famrel" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very poor</option>
+                                <option value="2">2 — Poor</option>
+                                <option value="3">3 — Average</option>
+                                <option value="4">4 — Good</option>
+                                <option value="5">5 — Excellent</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="freetime">Free Time After School</label>
+                            <select id="freetime" name="freetime" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very low</option>
+                                <option value="2">2 — Low</option>
+                                <option value="3">3 — Average</option>
+                                <option value="4">4 — High</option>
+                                <option value="5">5 — Very high</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="goout">Going Out with Friends</label>
+                            <select id="goout" name="goout" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very low</option>
+                                <option value="2">2 — Low</option>
+                                <option value="3">3 — Average</option>
+                                <option value="4">4 — High</option>
+                                <option value="5">5 — Very high</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="health">Self-Reported Health</label>
+                            <select id="health" name="health" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very poor</option>
+                                <option value="2">2 — Poor</option>
+                                <option value="3">3 — Average</option>
+                                <option value="4">4 — Good</option>
+                                <option value="5">5 — Very good</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Dalc">Workday Alcohol Consumption</label>
+                            <select id="Dalc" name="Dalc" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very low</option>
+                                <option value="2">2 — Low</option>
+                                <option value="3">3 — Moderate</option>
+                                <option value="4">4 — High</option>
+                                <option value="5">5 — Very high</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Walc">Weekend Alcohol Consumption</label>
+                            <select id="Walc" name="Walc" required>
+                                <option value="" disabled selected>
+                                    Select rating
+                                </option>
+                                <option value="1">1 — Very low</option>
+                                <option value="2">2 — Low</option>
+                                <option value="3">3 — Moderate</option>
+                                <option value="4">4 — High</option>
+                                <option value="5">5 — Very high</option>
+                            </select>
+                        </div>
+
+                        <div class="field full">
+                            <label for="absences">Number of School Absences</label>
+                            <input
+                                type="number"
+                                id="absences"
+                                name="absences"
+                                min="0"
+                                max="90"
+                                step="1"
+                                placeholder="Enter the number of absences"
+                                required
+                            >
+                            <span class="field-hint">
+                                Enter the total number of recorded school absences.
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SUBMIT -->
+                <div class="actions">
+                    <button type="submit" class="submit-button">
+                        Generate Prediction
+                        <span aria-hidden="true">→</span>
+                    </button>
+
+                    <p class="disclaimer">
+                        This project is for educational and research purposes.
+                        Predictions are estimates and should not be treated as
+                        definitive assessments of a student's ability.
+                    </p>
+                </div>
+
+            </form>
+
+            {% if prediction_text %}
+                <div
+                    class="result {% if 'Error:' in prediction_text %}error{% endif %}"
+                    role="status"
+                    aria-live="polite"
+                >
+                    <h3>
+                        {% if 'Error:' in prediction_text %}
+                            Something went wrong
+                        {% else %}
+                            Prediction Result
+                        {% endif %}
+                    </h3>
+                    <p>{{ prediction_text }}</p>
+                </div>
+            {% endif %}
         </div>
-        
-        <div class="form-group">
-            <label for="sex">Sex:</label>
-            <select id="sex" name="sex" required>
-                <option value="0">Female</option>
-                <option value="1">Male</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" min="15" max="22" required>
-        </div>
-        
-        <!-- Add more fields for all your features -->
-        <!-- This is just a sample, you need to add all the fields from your feature_columns -->
-        
-        <div class="form-group">
-            <label for="G1">First Period Grade (G1):</label>
-            <input type="number" id="G1" name="G1" min="0" max="20" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="G2">Second Period Grade (G2):</label>
-            <input type="number" id="G2" name="G2" min="0" max="20" required>
-        </div>
-        
-        <button type="submit">Predict Performance</button>
-    </form>
-    
-    {% if prediction_text %}
-    <div class="result">
-        <h2>Prediction Result:</h2>
-        <p>{{ prediction_text }}</p>
-    </div>
-    {% endif %}
+
+        <footer>
+            Student Performance Prediction Support System · Machine Learning Project
+        </footer>
+
+    </main>
 </body>
 </html>
